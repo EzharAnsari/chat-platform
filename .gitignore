@@ -1,0 +1,33 @@
+/generated/prisma
+
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build
+dist
+build
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+prisma/migrations
+
+# IDE
+.vscode
+.idea
+
+# Coverage
+coverage
