@@ -15,36 +15,74 @@ export function registerSocketEvents(io: Server, socket: Socket) {
         console.log("Current rooms:", io.sockets.adapter.rooms);
     });
 
-    socket.on("send_message", async (data, callback?: Function) => {
+    socket.on("send_message", async (data, callback) => {
         try {
-            const { conversationId, content } = data;
+            const { conversationId, content, clientMessageId } = data;
             const senderId = socket.data.userId;
 
-            // Validate membership
+            if (!clientMessageId) {
+                return callback({ error: "clientMessageId required" });
+            }
+
             const member = await prisma.conversationMember.findFirst({
                 where: { conversationId, userId: senderId }
             });
 
             if (!member) {
-                if (callback) callback({ error: "Not part of conversation" });
-                return
+                return callback({ error: "Not part of conversation" });
             }
 
-            // Save message
-            const message = await prisma.message.create({
-                data: {
-                    conversationId,
-                    senderId,
-                    content
-                }
-            });
+            let message;
 
-            // Emit to conversation room
+            try {
+                message = await prisma.message.create({
+                    data: {
+                        conversationId,
+                        senderId,
+                        content,
+                        clientMessageId,
+                        status: "SENT"
+                    }
+                });
+            } catch (err: any) {
+                // Unique constraint failed → duplicate
+                message = await prisma.message.findFirst({
+                    where: { conversationId, clientMessageId }
+                });
+            }
+
             io.to(`conversation:${conversationId}`).emit("new_message", message);
 
-            if (callback) callback({ success: true });
+            callback({ success: true, message });
+
         } catch (err) {
-            if (callback) callback({ error: "Message failed" });
+            callback({ error: "Message failed" });
         }
+    });
+
+    socket.on("message_delivered", async ({ messageId }) => {
+        const message = await prisma.message.update({
+            where: { id: messageId },
+            data: { status: "DELIVERED" }
+        });
+
+        io.to(`conversation:${message.conversationId}`)
+            .emit("message_status_updated", {
+                messageId,
+                status: "DELIVERED"
+            });
+    });
+
+    socket.on("message_read", async ({ messageId }) => {
+        const message = await prisma.message.update({
+            where: { id: messageId },
+            data: { status: "READ" }
+        });
+
+        io.to(`conversation:${message.conversationId}`)
+            .emit("message_status_updated", {
+                messageId,
+                status: "READ"
+            });
     });
 }

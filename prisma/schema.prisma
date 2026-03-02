@@ -53,14 +53,22 @@ model ConversationMember {
 }
 
 model Message {
-  id             String   @id @default(uuid())
-  conversationId String
-  senderId       String
-  content        String
-  createdAt      DateTime @default(now())
+  id              String   @id @default(uuid())
+  conversationId  String
+  senderId        String
+  content         String
+  clientMessageId String
+  status          MessageStatus @default(SENT)
+  createdAt       DateTime @default(now())
 
   conversation   Conversation @relation(fields: [conversationId], references: [id])
 
+  @@unique([conversationId, clientMessageId])
   @@index([conversationId, createdAt])
 }
 
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+}
