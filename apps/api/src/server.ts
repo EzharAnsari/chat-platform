@@ -1,3 +1,4 @@
+/// <reference path="./global.d.ts" />
 import { buildApp } from "./app";
 import { env } from "@config/env";
 
