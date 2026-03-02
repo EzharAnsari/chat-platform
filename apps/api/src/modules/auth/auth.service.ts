@@ -3,6 +3,7 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { prisma } from "@database/client";
 import { env } from "@config/env";
+import { AppError } from "../../common/errors/app-error";
 
 const SALT_ROUNDS = 12;
 
@@ -10,7 +11,7 @@ export class AuthService {
 
   async register(email: string, password: string) {
     const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) throw new Error("User already exists");
+    if (existing) throw new AppError("User exists", 409);
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
@@ -23,10 +24,10 @@ export class AuthService {
 
   async login(email: string, password: string, userAgent?: string, ip?: string) {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) throw new Error("Invalid credentials");
+    if (!user) throw new AppError("Invalid credentials", 401);
 
     const valid = await bcrypt.compare(password, user.passwordHash);
-    if (!valid) throw new Error("Invalid credentials");
+    if (!valid) throw new AppError("Invalid credentials", 401);
 
     const accessToken = this.generateAccessToken(user.id);
     const refreshToken = this.generateRefreshToken(user.id);
@@ -58,7 +59,7 @@ export class AuthService {
       }
     });
 
-    if (!stored) throw new Error("Invalid refresh token");
+    if (!stored) throw new AppError("Invalid refresh token", 401);
 
     // rotate
     await prisma.refreshToken.update({

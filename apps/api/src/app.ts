@@ -4,6 +4,8 @@ import cookie from "@fastify/cookie";
 import jwt from "@fastify/jwt";
 import { env } from "@config/env";
 import { authRoutes } from "./modules/auth/auth.routes";
+import { AppError } from "./common/errors/app-error";
+import { authPlugin } from "./plugins/auth";
 
 export async function buildApp() {
   const app = Fastify({
@@ -23,6 +25,24 @@ export async function buildApp() {
   });
 
   await app.register(authRoutes);
+
+  app.setErrorHandler((error, request, reply) => {
+    if (error instanceof AppError) {
+      return reply.status(error.statusCode).send({
+        success: false,
+        message: error.message
+      });
+    }
+
+    app.log.error(error);
+
+    return reply.status(500).send({
+      success: false,
+      message: "Internal Server Error"
+    });
+  });
+
+  await app.register(authPlugin);
 
   app.get("/health", async () => {
     return { status: "ok" };
