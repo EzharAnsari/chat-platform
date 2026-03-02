@@ -6,6 +6,7 @@ import { env } from "@config/env";
 import { authRoutes } from "./modules/auth/auth.routes";
 import { AppError } from "./common/errors/app-error";
 import { authPlugin } from "./plugins/auth";
+import { setupSocketServer } from "./realtime/socket.server";
 
 export async function buildApp() {
   const app = Fastify({
@@ -47,6 +48,8 @@ export async function buildApp() {
   app.get("/health", async () => {
     return { status: "ok" };
   });
+
+  const io = setupSocketServer(app);
 
   return app;
 }
