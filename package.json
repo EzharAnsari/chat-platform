@@ -16,5 +16,10 @@
   "devDependencies": {
     "prisma": "^7.4.2",
     "tsconfig-paths": "^4.2.0"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
+    "pg": "^8.19.0"
   }
 }
