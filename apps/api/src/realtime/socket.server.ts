@@ -6,6 +6,8 @@ import { registerSocketEvents } from "./socket.events";
 import { registerConnection } from "./socket.registry";
 import { markUserOnline, markUserOffline, isUserOnline } from "./presence.service";
 import { prisma } from "@database/client";
+import { createAdapter } from "@socket.io/redis-adapter";
+import { redis, pubClient, subClient } from "../infra/redis";
 
 export function setupSocketServer(app: FastifyInstance) {
     const io = new Server(app.server, {
@@ -14,6 +16,9 @@ export function setupSocketServer(app: FastifyInstance) {
             credentials: true
         }
     });
+
+    // Attach Redis adapter
+    io.adapter(createAdapter(pubClient, subClient));
 
     io.use((socket, next) => {
         const token = socket.handshake.auth?.token;
@@ -34,7 +39,7 @@ export function setupSocketServer(app: FastifyInstance) {
         }
     });
 
-    io.on("connection", (socket) => {
+    io.on("connection", async (socket) => {
         const userId = socket.data.userId;
 
         // registerConnection(userId, socket);
@@ -42,20 +47,27 @@ export function setupSocketServer(app: FastifyInstance) {
         // Personal room
         socket.join(`user:${userId}`);
 
-        markUserOnline(userId);
+        const count = await markUserOnline(userId);
 
-        // Notify others
-        io.emit("presence_update", {
-            userId,
-            status: "ONLINE"
-        });
+        if (count === 1) {
+            io.emit("presence_update", {
+                userId,
+                status: "ONLINE"
+            });
+        }
 
         registerSocketEvents(io, socket);
 
-        socket.on("disconnect", async () => {
-            markUserOffline(userId);
+        const interval = setInterval(() => {
+            redis.expire(`presence:user:${userId}`, 60);
+        }, 30000);
 
-            if (!isUserOnline(userId)) {
+        socket.on("disconnect", async () => {
+            clearInterval(interval);
+
+            const remaining = await markUserOffline(userId);
+
+            if (remaining === 0) {
                 await prisma.user.update({
                     where: { id: userId },
                     data: { lastSeen: new Date() }
