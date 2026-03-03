@@ -8,6 +8,7 @@ import { AppError } from "./common/errors/app-error";
 import { authPlugin } from "./plugins/auth";
 import { setupSocketServer } from "./realtime/socket.server";
 import { messageRoutes } from "./modules/messages/messages.routes";
+import { conversationRoutes } from "./modules/conversations/conversations.routes";
 
 export async function buildApp() {
 
@@ -33,6 +34,8 @@ export async function buildApp() {
   await app.register(authPlugin);
 
   await app.register(messageRoutes);
+
+  await app.register(conversationRoutes);
 
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof AppError) {

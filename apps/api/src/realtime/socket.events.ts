@@ -54,6 +54,11 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                         receipts: true
                     }
                 });
+
+                await prisma.conversation.update({
+                    where: { id: conversationId },
+                    data: { updatedAt: new Date() }
+                });
             } catch (err: any) {
                 // Unique constraint failed → duplicate
                 message = await prisma.message.findFirst({
