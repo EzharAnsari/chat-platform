@@ -9,6 +9,7 @@ import { authPlugin } from "./plugins/auth";
 import { setupSocketServer } from "./realtime/socket.server";
 import { messageRoutes } from "./modules/messages/messages.routes";
 import { conversationRoutes } from "./modules/conversations/conversations.routes";
+import { userRoutes } from "./modules/users/users.routes";
 
 export async function buildApp() {
 
@@ -32,6 +33,8 @@ export async function buildApp() {
   await app.register(authRoutes);
 
   await app.register(authPlugin);
+
+  await app.register(userRoutes);
 
   await app.register(messageRoutes);
 

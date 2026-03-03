@@ -43,6 +43,10 @@ export function setupSocketServer(app: FastifyInstance) {
         const userId = socket.data.userId;
 
         // registerConnection(userId, socket);
+        // 🔥 Send identity to client
+        socket.emit("authenticated", {
+            userId
+        });
 
         // Personal room
         socket.join(`user:${userId}`);
