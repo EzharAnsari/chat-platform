@@ -1,6 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { prisma } from "@database/client";
 import { ensureConversationMember } from "../modules/conversations/conversation.service";
+import { checkMessageRateLimit } from "../common/services/rateLimit.service";
 
 
 export function registerSocketEvents(io: Server, socket: Socket) {
@@ -11,9 +12,6 @@ export function registerSocketEvents(io: Server, socket: Socket) {
     socket.on("join_conversation", async ({ conversationId }) => {
         const room = `conversation:${conversationId}`;
         socket.join(room);
-
-        console.log("User joined room:", room);
-        console.log("Current rooms:", io.sockets.adapter.rooms);
     });
 
     socket.on("send_message", async (data, callback) => {
@@ -23,8 +21,14 @@ export function registerSocketEvents(io: Server, socket: Socket) {
 
             await ensureConversationMember(conversationId, senderId);
 
+            const allowed = await checkMessageRateLimit(senderId);
+
+            if (!allowed) {
+                return callback({ success: false, error: "Rate limit exceeded" });
+            }
+
             if (!clientMessageId) {
-                return callback({ error: "clientMessageId required" });
+                return callback({ success: false, error: "clientMessageId required" });
             }
 
             const members = await prisma.conversationMember.findMany({
@@ -32,7 +36,7 @@ export function registerSocketEvents(io: Server, socket: Socket) {
             });
 
             if (!members) {
-                return callback({ error: "Not part of conversation" });
+                return callback({ success: false, error: "Not part of conversation" });
             }
 
             let message;
@@ -74,7 +78,7 @@ export function registerSocketEvents(io: Server, socket: Socket) {
             callback({ success: true, message });
 
         } catch (err) {
-            callback({ error: "Message failed" });
+            callback({ success: false, error: "Message failed" });
         }
     });
 

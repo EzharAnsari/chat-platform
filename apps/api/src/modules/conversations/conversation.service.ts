@@ -1,4 +1,5 @@
 import { prisma } from "@database/client";
+import { AppError } from "../../common/errors/app-error";
 
 export async function ensureConversationMember(
   conversationId: string,
@@ -14,7 +15,7 @@ export async function ensureConversationMember(
   });
 
   if (!member) {
-    throw new Error("Forbidden: Not a conversation member");
+    throw new AppError("Forbidden", 403);
   }
 
   return member;

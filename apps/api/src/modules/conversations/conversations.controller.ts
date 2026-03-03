@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@database/client";
+import { createConversationSchema } from "./conversations.schema";
 
 export async function getConversationsHandler(
     request: FastifyRequest,
@@ -79,11 +80,8 @@ export async function createConversationHandler(
     reply: FastifyReply
 ) {
     const userId = (request.user as any).userId;
-    const { type, participantIds, name } = request.body as {
-        type: "DIRECT" | "GROUP";
-        participantIds: string[];
-        name?: string;
-    };
+
+    const { type, participantIds, name } = createConversationSchema.parse(request.body);
 
     if (!participantIds || participantIds.length === 0) {
         return reply.status(400).send({ message: "Participants required" });
