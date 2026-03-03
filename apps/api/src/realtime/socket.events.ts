@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { prisma } from "@database/client";
+import { ensureConversationMember } from "../modules/conversations/conversation.service";
 
 
 export function registerSocketEvents(io: Server, socket: Socket) {
@@ -19,6 +20,8 @@ export function registerSocketEvents(io: Server, socket: Socket) {
         try {
             const { conversationId, content, clientMessageId } = data;
             const senderId = socket.data.userId;
+
+            await ensureConversationMember(conversationId, senderId);
 
             if (!clientMessageId) {
                 return callback({ error: "clientMessageId required" });

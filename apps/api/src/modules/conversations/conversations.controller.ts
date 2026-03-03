@@ -73,3 +73,70 @@ export async function getConversationsHandler(
 
     return reply.send(result);
 }
+
+export async function createConversationHandler(
+    request: FastifyRequest,
+    reply: FastifyReply
+) {
+    const userId = (request.user as any).userId;
+    const { type, participantIds, name } = request.body as {
+        type: "DIRECT" | "GROUP";
+        participantIds: string[];
+        name?: string;
+    };
+
+    if (!participantIds || participantIds.length === 0) {
+        return reply.status(400).send({ message: "Participants required" });
+    }
+
+    // Always include creator
+    const uniqueParticipants = Array.from(
+        new Set([...participantIds, userId])
+    );
+
+    if (type === "DIRECT") {
+        if (uniqueParticipants.length !== 2) {
+            return reply
+                .status(400)
+                .send({ message: "Direct conversation must have 2 participants" });
+        }
+
+        // Check if direct conversation already exists
+        const existing = await prisma.conversation.findMany({
+            where: {
+                type: "DIRECT",
+                members: {
+                    some: { userId }
+                }
+            },
+            include: { members: true }
+        });
+
+        const direct = existing.find(c =>
+            c.members.length === 2 &&
+            c.members.some(m => m.userId === participantIds[0])
+        );
+
+        if (direct) return reply.send(direct);
+    }
+
+    // Create conversation
+    const conversation = await prisma.conversation.create({
+        data: {
+            type,
+            name: type === "GROUP" ? name : null,
+            createdBy: userId,
+            members: {
+                create: uniqueParticipants.map((id) => ({
+                    userId: id,
+                    role: id === userId ? "ADMIN" : "MEMBER"
+                }))
+            }
+        },
+        include: {
+            members: true
+        }
+    });
+
+    return reply.status(201).send(conversation);
+}

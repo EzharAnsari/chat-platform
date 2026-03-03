@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@database/client";
 import { Buffer } from "buffer";
+import { ensureConversationMember } from "../conversations/conversation.service";
 
 function encodeCursor(createdAt: Date, id: string) {
   return Buffer.from(
@@ -18,6 +19,8 @@ export async function getMessagesHandler(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
+  const userId = (request.user as any).userId;
+
   const { conversationId } = request.params as {
     conversationId: string;
   };
@@ -27,7 +30,7 @@ export async function getMessagesHandler(
     limit?: string;
   };
 
-  console.log("conversationId: " + conversationId + " cursor: " + cursor )
+  await ensureConversationMember(conversationId, userId);
 
   const take = Math.min(parseInt(limit), 50);
 
@@ -52,8 +55,6 @@ export async function getMessagesHandler(
       ]
     };
   }
-
-    console.log("paginationFilter: " + paginationFilter + " take: " + take )
 
   const messages = await prisma.message.findMany({
     where: {
