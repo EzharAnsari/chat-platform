@@ -24,11 +24,11 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                 return callback({ error: "clientMessageId required" });
             }
 
-            const member = await prisma.conversationMember.findFirst({
-                where: { conversationId, userId: senderId }
+            const members = await prisma.conversationMember.findMany({
+                where: { conversationId }
             });
 
-            if (!member) {
+            if (!members) {
                 return callback({ error: "Not part of conversation" });
             }
 
@@ -41,7 +41,17 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                         senderId,
                         content,
                         clientMessageId,
-                        status: "SENT"
+                        receipts: {
+                            create: members
+                                .filter(m => m.userId !== senderId)
+                                .map(m => ({
+                                    userId: m.userId,
+                                    status: "DELIVERED"
+                                }))
+                        }
+                    },
+                    include: {
+                        receipts: true
                     }
                 });
             } catch (err: any) {
@@ -61,27 +71,51 @@ export function registerSocketEvents(io: Server, socket: Socket) {
     });
 
     socket.on("message_delivered", async ({ messageId }) => {
-        const message = await prisma.message.update({
-            where: { id: messageId },
-            data: { status: "DELIVERED" }
+        const userId = socket.data.userId;
+
+        await prisma.messageReceipt.updateMany({
+            where: {
+                messageId,
+                userId
+            },
+            data: {
+                status: "DELIVERED"
+            }
         });
 
-        io.to(`conversation:${message.conversationId}`)
-            .emit("message_status_updated", {
+        const message = await prisma.message.findUnique({
+            where: { id: messageId }
+        });
+
+        io.to(`conversation:${message?.conversationId}`)
+            .emit("receipt_updated", {
                 messageId,
+                userId,
                 status: "DELIVERED"
             });
     });
 
     socket.on("message_read", async ({ messageId }) => {
-        const message = await prisma.message.update({
-            where: { id: messageId },
-            data: { status: "READ" }
+        const userId = socket.data.userId;
+
+        const receipt = await prisma.messageReceipt.updateMany({
+            where: {
+                messageId,
+                userId
+            },
+            data: {
+                status: "READ"
+            }
         });
 
-        io.to(`conversation:${message.conversationId}`)
-            .emit("message_status_updated", {
+        const message = await prisma.message.findUnique({
+            where: { id: messageId }
+        });
+
+        io.to(`conversation:${message?.conversationId}`)
+            .emit("receipt_updated", {
                 messageId,
+                userId,
                 status: "READ"
             });
     });

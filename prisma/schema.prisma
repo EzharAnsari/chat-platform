@@ -59,17 +59,29 @@ model Message {
   senderId        String
   content         String
   clientMessageId String
-  status          MessageStatus @default(SENT)
   createdAt       DateTime @default(now())
 
   conversation   Conversation @relation(fields: [conversationId], references: [id])
+  receipts       MessageReceipt[]
 
   @@unique([conversationId, clientMessageId])
   @@index([conversationId, createdAt])
 }
 
-enum MessageStatus {
-  SENT
+model MessageReceipt {
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
+  status    ReceiptStatus @default(DELIVERED)
+  updatedAt DateTime @updatedAt
+
+  message   Message @relation(fields: [messageId], references: [id])
+
+  @@unique([messageId, userId])
+  @@index([userId])
+}
+
+enum ReceiptStatus {
   DELIVERED
   READ
 }

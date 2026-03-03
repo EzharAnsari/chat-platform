@@ -7,8 +7,11 @@ import { authRoutes } from "./modules/auth/auth.routes";
 import { AppError } from "./common/errors/app-error";
 import { authPlugin } from "./plugins/auth";
 import { setupSocketServer } from "./realtime/socket.server";
+import { messageRoutes } from "./modules/messages/messages.routes";
 
 export async function buildApp() {
+
+  console.log("DB URL:", process.env.DATABASE_URL);
   const app = Fastify({
     logger: true
   });
@@ -27,6 +30,10 @@ export async function buildApp() {
 
   await app.register(authRoutes);
 
+  await app.register(authPlugin);
+
+  await app.register(messageRoutes);
+
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof AppError) {
       return reply.status(error.statusCode).send({
@@ -42,8 +49,6 @@ export async function buildApp() {
       message: "Internal Server Error"
     });
   });
-
-  await app.register(authPlugin);
 
   app.get("/health", async () => {
     return { status: "ok" };
