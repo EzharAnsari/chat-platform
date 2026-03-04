@@ -82,3 +82,14 @@ export const api = {
     }),
   refreshToken,
 };
+
+export async function createConversation(data: {
+  type: "DIRECT" | "GROUP";
+  name?: string;
+  participantEmails: string[];
+}) {
+  return request("/conversations", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}

@@ -103,48 +103,57 @@ export default function ChatWindow({ conversationId }: Props) {
   };
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full">
+
+      {/* Header */}
+      <div className="h-16 border-b border-gray-800 flex items-center px-6">
+        <span className="font-medium text-sm">
+          Conversation
+        </span>
+      </div>
+
       {/* Messages */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto p-6 space-y-2"
+        className="flex-1 overflow-y-auto p-6 space-y-3 bg-gray-900"
       >
         {messages.map((msg) => (
-          <MessageBubble
-            key={msg.id}
-            message={msg}
-          />
+          <MessageBubble key={msg.id} message={msg} />
         ))}
       </div>
 
       {/* Input */}
-      <form
-        className="p-4 border-t border-border flex gap-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const input =
-            e.currentTarget.elements.namedItem(
-              "message"
-            ) as HTMLInputElement;
+      <div className="border-t border-gray-800 p-4">
+        <form
+          className="flex gap-3"
+          onSubmit={(e) => {
+            e.preventDefault();
 
-          if (!input.value.trim()) return;
+            const input =
+              e.currentTarget.elements.namedItem(
+                "message"
+              ) as HTMLInputElement;
 
-          sendMessage(input.value);
-          input.value = "";
-        }}
-      >
-        <input
-          name="message"
-          placeholder="Type a message..."
-          className="flex-1 p-3 rounded-lg bg-gray-800"
-        />
-        <button
-          type="submit"
-          className="px-4 py-3 bg-primary rounded-lg"
+            if (!input.value.trim()) return;
+
+            sendMessage(input.value);
+            input.value = "";
+          }}
         >
-          Send
-        </button>
-      </form>
+          <input
+            name="message"
+            placeholder="Type a message..."
+            className="flex-1 bg-gray-800 px-4 py-3 rounded-lg text-sm outline-none"
+          />
+
+          <button
+            type="submit"
+            className="bg-blue-600 px-5 py-3 rounded-lg text-sm"
+          >
+            Send
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

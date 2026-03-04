@@ -9,14 +9,14 @@ const SALT_ROUNDS = 12;
 
 export class AuthService {
 
-  async register(email: string, password: string) {
+  async register(name: string, email: string, password: string) {
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) throw new AppError("User exists", 409);
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
     const user = await prisma.user.create({
-      data: { email, passwordHash }
+      data: { name, email, passwordHash }
     });
 
     return user;

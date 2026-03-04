@@ -11,7 +11,7 @@ export async function registerHandler(
   reply: FastifyReply
 ) {
   const parsed = registerSchema.parse(request.body);
-  await service.register(parsed.email, parsed.password);
+  await service.register(parsed.name, parsed.email, parsed.password);
 
   return reply.code(201).send({ message: "User created" });
 }

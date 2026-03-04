@@ -25,15 +25,24 @@ export interface Message {
   receipts: MessageReceipt[];
 }
 
+export interface Participant {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface Conversation {
   id: string;
-  name?: string;
-  participants: string[];
+  type: "DIRECT" | "GROUP";
+  name: string | null;
+  participants: Participant[];
+
   lastMessage?: {
     id: string;
     content: string;
     createdAt: string;
   };
+
   unreadCount: number;
   updatedAt: string;
 }

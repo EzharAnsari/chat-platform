@@ -12,6 +12,7 @@ export async function getCurrentUserHandler(
     select: {
       id: true,
       email: true,
+      name: true,
       createdAt: true,
       lastSeen: true
     }
@@ -27,6 +28,7 @@ export async function getCurrentUserHandler(
   return reply.send({
     id: user.id,
     email: user.email,
+    name: user.name,
     createdAt: user.createdAt,
     lastSeen: user.lastSeen
   });

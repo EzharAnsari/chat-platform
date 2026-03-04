@@ -14,6 +14,7 @@ export default function RegisterPage() {
 
     const form = new FormData(e.currentTarget);
     await register(
+      form.get("name") as string,
       form.get("email") as string,
       form.get("password") as string
     );

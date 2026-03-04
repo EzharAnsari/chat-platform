@@ -22,7 +22,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (name:string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -72,16 +72,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* ---------------- REGISTER ---------------- */
 
   const register = async (
+    name: string,
     email: string,
     password: string
   ) => {
     await api.post("/auth/register", {
+      name,
       email,
       password,
     });
 
+    router.push("/login");
     // Auto login after register
-    await login(email, password);
+    // await login(email, password);
   };
 
   /* ---------------- LOGOUT ---------------- */
