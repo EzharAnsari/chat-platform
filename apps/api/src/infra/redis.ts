@@ -12,3 +12,8 @@ export const pubClient = new Redis({
 });
 
 export const subClient = pubClient.duplicate();
+
+export const redisConnection = {
+  host: "localhost",
+  port: 6379
+};

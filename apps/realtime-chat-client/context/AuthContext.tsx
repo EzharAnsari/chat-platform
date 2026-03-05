@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 interface User {
   id: string;
   email: string;
+  name: string;
   createdAt: string;
   lastSeen?: string;
 }
@@ -45,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(me);
       } catch {
         setUser(null);
+        router.push("/login");
       } finally {
         setLoading(false);
       }

@@ -2,6 +2,8 @@ import { Server, Socket } from "socket.io";
 import { prisma } from "@database/client";
 import { ensureConversationMember } from "../modules/conversations/conversation.service";
 import { checkMessageRateLimit } from "../common/services/rateLimit.service";
+import { isUserOnline } from "./presence.service";
+import { enqueueNotification } from "../infra/queue/notification.queue";
 
 
 export function registerSocketEvents(io: Server, socket: Socket) {
@@ -39,7 +41,7 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                 return callback({ success: false, error: "Not part of conversation" });
             }
 
-            let message;
+            let message: any;
 
             try {
                 message = await prisma.message.create({
@@ -61,6 +63,20 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                         receipts: true
                     }
                 });
+
+                await Promise.all(
+                    message.receipts.map(async (receipt: any) => {
+                        const online = await isUserOnline(receipt.userId);
+
+                        if (!online) {
+                            await enqueueNotification({
+                                userId: receipt.userId,
+                                messageId: message.id,
+                                conversationId
+                            });
+                        }
+                    })
+                );
 
                 await prisma.conversation.update({
                     where: { id: conversationId },
