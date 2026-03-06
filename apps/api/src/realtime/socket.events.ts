@@ -18,7 +18,7 @@ export function registerSocketEvents(io: Server, socket: Socket) {
 
     socket.on("send_message", async (data, callback) => {
         try {
-            const { conversationId, content, clientMessageId } = data;
+            const { conversationId, content, clientMessageId, attachments = [] } = data;
             const senderId = socket.data.userId;
 
             await ensureConversationMember(conversationId, senderId);
@@ -57,13 +57,26 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                                     userId: m.userId,
                                     status: "DELIVERED"
                                 }))
+                        },
+                        attachments: {
+                            create: attachments.map((a:any) => ({
+                                url: a.url,
+                                mimeType: a.mimeType,
+                                fileName: a.fileName,
+                                size: a.size
+                            }))
                         }
                     },
                     include: {
-                        receipts: true
+                        receipts: true,
+                        attachments: true
                     }
                 });
 
+                // emit realtime message first
+                io.to(`conversation:${conversationId}`).emit("new_message", message);
+
+                // enqueue notifications for offline users
                 await Promise.all(
                     message.receipts.map(async (receipt: any) => {
                         const online = await isUserOnline(receipt.userId);
@@ -78,18 +91,17 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                     })
                 );
 
+                // update conversation timestamp
                 await prisma.conversation.update({
                     where: { id: conversationId },
                     data: { updatedAt: new Date() }
                 });
             } catch (err: any) {
-                // Unique constraint failed → duplicate
+                // Unique constraint failed → duplicate  // idempotency fallback
                 message = await prisma.message.findFirst({
                     where: { conversationId, clientMessageId }
                 });
             }
-
-            io.to(`conversation:${conversationId}`).emit("new_message", message);
 
             callback({ success: true, message });
 
