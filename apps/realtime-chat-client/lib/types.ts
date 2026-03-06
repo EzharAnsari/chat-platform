@@ -23,6 +23,7 @@ export interface Message {
   clientMessageId: string;
   createdAt: string;
   receipts: MessageReceipt[];
+  attachments: Attachment[];
 }
 
 export interface Participant {
@@ -45,4 +46,17 @@ export interface Conversation {
 
   unreadCount: number;
   updatedAt: string;
+}
+
+export interface Attachment {
+  url: string
+  mimeType: string
+  fileName: string
+  size?: number
+}
+
+export interface UploadUrlResponse {
+  uploadUrl: string
+  fileUrl: string
+  key: string
 }

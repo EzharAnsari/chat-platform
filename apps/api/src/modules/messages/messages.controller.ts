@@ -67,7 +67,8 @@ export async function getMessagesHandler(
     ],
     take,
     include: {
-      receipts: true
+      receipts: true,
+      attachments: true
     }
   });
 
