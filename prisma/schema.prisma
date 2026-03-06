@@ -115,6 +115,9 @@ model Attachment {
   fileName    String
   mimeType    String
   size        Int
+
+  thumbnailUrl String?
+
   createdAt   DateTime @default(now())
 
   messageId   String?

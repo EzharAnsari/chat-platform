@@ -1,6 +1,6 @@
 import { Queue } from "bullmq";
-import { redisConnection } from "../redis";
-import { NotificationJobData } from "./jobs/notification.job";
+import { redisConnection } from "../../redis";
+import { NotificationJobData } from "./notification.job";
 
 export const notificationQueue = new Queue<NotificationJobData>(
   "notification-queue",

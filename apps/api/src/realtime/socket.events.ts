@@ -3,7 +3,8 @@ import { prisma } from "@database/client";
 import { ensureConversationMember } from "../modules/conversations/conversation.service";
 import { checkMessageRateLimit } from "../common/services/rateLimit.service";
 import { isUserOnline } from "./presence.service";
-import { enqueueNotification } from "../infra/queue/notification.queue";
+import { enqueueNotification } from "../infra/queue/notification/notification.queue";
+import { enqueueMediaJob } from "../infra/queue/media/media.queue";
 
 
 export function registerSocketEvents(io: Server, socket: Socket) {
@@ -59,7 +60,7 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                                 }))
                         },
                         attachments: {
-                            create: attachments.map((a:any) => ({
+                            create: attachments.map((a: any) => ({
                                 url: a.url,
                                 mimeType: a.mimeType,
                                 fileName: a.fileName,
@@ -90,6 +91,18 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                         }
                     })
                 );
+
+                // enqueue media thumbnails generate job for image attachments
+                await Promise.all(
+                    message.attachments.map(async (attachment: any) => {
+                        if (attachment.mimeType.startsWith("image/")) {
+                            await enqueueMediaJob({
+                                attachmentId: attachment.id,
+                                url: attachment.url
+                            });
+                        }
+                    })
+                )
 
                 // update conversation timestamp
                 await prisma.conversation.update({

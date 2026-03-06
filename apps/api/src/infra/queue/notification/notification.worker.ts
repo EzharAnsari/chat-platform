@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
-import { redisConnection } from "../redis";
-import { NotificationJobData } from "./jobs/notification.job";
+import { redisConnection } from "../../redis";
+import { NotificationJobData } from "./notification.job";
 import { prisma } from "@database/client";
 
 export const notificationWorker = new Worker<NotificationJobData>(

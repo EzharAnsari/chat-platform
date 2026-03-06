@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --respawn -r tsconfig-paths/register --project tsconfig.json src/server.ts",
-    "worker": "ts-node -r tsconfig-paths/register --project tsconfig.json src/infra/queue/worker.ts"
+    "notification-worker": "ts-node -r tsconfig-paths/register --project tsconfig.json src/infra/queue/notification/notification.worker.ts",
+    "media-worker": "ts-node -r tsconfig-paths/register --project tsconfig.json src/infra/queue/media/media.worker.ts"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +27,8 @@
     "fastify-plugin": "^5.1.0",
     "ioredis": "^5.9.3",
     "jsonwebtoken": "^9.0.3",
+    "node-fetch": "^3.3.2",
+    "sharp": "^0.34.5",
     "socket.io": "^4.8.3",
     "zod": "^4.3.6"
   },

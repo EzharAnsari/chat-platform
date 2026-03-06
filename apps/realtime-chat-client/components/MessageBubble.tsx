@@ -51,7 +51,7 @@ export default function MessageBubble({ message }: Props) {
                 className="block mt-2"
               >
                 <img
-                  src={att.url}
+                  src={att.thumbnailUrl ? att.thumbnailUrl : att.url}
                   alt={att.fileName}
                   className="max-w-[260px] max-h-[260px] object-cover rounded-lg"
                 />

@@ -53,6 +53,7 @@ export interface Attachment {
   mimeType: string
   fileName: string
   size?: number
+  thumbnailUrl?: string
 }
 
 export interface UploadUrlResponse {
