@@ -10,6 +10,7 @@ import { setupSocketServer } from "./realtime/socket.server";
 import { messageRoutes } from "./modules/messages/messages.routes";
 import { conversationRoutes } from "./modules/conversations/conversations.routes";
 import { userRoutes } from "./modules/users/users.routes";
+import { attachmentRoutes } from "./modules/attachments/attachments.routes";
 
 export async function buildApp() {
 
@@ -39,6 +40,8 @@ export async function buildApp() {
   await app.register(messageRoutes);
 
   await app.register(conversationRoutes);
+
+  await app.register(attachmentRoutes);
 
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof AppError) {
