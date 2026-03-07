@@ -53,11 +53,11 @@ export async function getConversationsHandler(
 
     // Map messageId → unread
     const unreadMap = new Map<string, number>();
-    unreadCounts.forEach((r) => {
+    unreadCounts.forEach((r:any) => {
         unreadMap.set(r.messageId, r._count);
     });
 
-    const result = conversations.map((conversation) => {
+    const result = conversations.map((conversation:any) => {
         const lastMessage = conversation.messages[0] || null;
 
         const unreadCount = lastMessage
@@ -69,7 +69,7 @@ export async function getConversationsHandler(
             type: conversation.type,
             name: conversation.name,
 
-            participants: conversation.members.map((m) => ({
+            participants: conversation.members.map((m:any) => ({
                 id: m.user.id,
                 name: m.user.name,
                 email: m.user.email
@@ -116,7 +116,7 @@ export async function createConversationHandler(
       .send({ message: "One or more users not found" });
   }
 
-  const participantIds = users.map((u) => u.id);
+  const participantIds = users.map((u:any) => u.id);
 
   // Always include creator
   const uniqueParticipants = Array.from(
@@ -146,9 +146,9 @@ export async function createConversationHandler(
     });
 
     const direct = existing.find(
-      (c) =>
+      (c:any) =>
         c.members.length === 2 &&
-        c.members.some((m) => m.userId === otherUserId)
+        c.members.some((m:any) => m.userId === otherUserId)
     );
 
     if (direct) return reply.send(direct);

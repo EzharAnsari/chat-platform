@@ -53,8 +53,8 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                         clientMessageId,
                         receipts: {
                             create: members
-                                .filter(m => m.userId !== senderId)
-                                .map(m => ({
+                                .filter((m:any) => m.userId !== senderId)
+                                .map((m:any) => ({
                                     userId: m.userId,
                                     status: "DELIVERED"
                                 }))

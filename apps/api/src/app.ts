@@ -14,7 +14,6 @@ import { attachmentRoutes } from "./modules/attachments/attachments.routes";
 
 export async function buildApp() {
 
-  console.log("DB URL:", process.env.DATABASE_URL);
   const app = Fastify({
     logger: true
   });
