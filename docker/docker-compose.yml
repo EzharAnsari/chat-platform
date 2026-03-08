@@ -46,7 +46,7 @@ services:
       S3_BUCKET: chat-attachments
       JWT_ACCESS_SECRET: supersecretaccess
       JWT_REFRESH_SECRET: supersecretrefresh
-      S3_PUBLIC_URL: http://localhost:9000/chat-attachments
+      S3_PUBLIC_URL: http://localhost:9000
     depends_on:
       - postgres
       - redis
@@ -67,7 +67,7 @@ services:
       S3_BUCKET: chat-attachments
       JWT_ACCESS_SECRET: supersecretaccess
       JWT_REFRESH_SECRET: supersecretrefresh
-      S3_PUBLIC_URL: http://minio:9000/chat-attachments
+      S3_PUBLIC_URL: http://localhost:9000
     depends_on:
       - postgres
       - redis
