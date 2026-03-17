@@ -1,4 +1,4 @@
-# 💬 Chat Platform Backend (Production-Style)
+# 💬 Chat Platform Backend
 
 A scalable, real-time chat backend built with **Node.js, Fastify, TypeScript, Redis, BullMQ, Prisma, and MinIO**, designed using **production-grade architecture patterns**.
 
