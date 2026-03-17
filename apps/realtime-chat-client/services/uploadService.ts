@@ -8,7 +8,7 @@ export async function uploadFile(file: File): Promise<Attachment> {
     mimeType: file.type,
   })
 
-  const { uploadUrl, fileUrl } = data
+  const { uploadUrl, fileUrl, key } = data
 
   // Step 2 — upload to storage (NO AUTH HEADER)
   const uploadRes = await fetch(uploadUrl, {
@@ -29,5 +29,6 @@ export async function uploadFile(file: File): Promise<Attachment> {
     mimeType: file.type,
     fileName: file.name,
     size: file.size,
+    key
   }
 }

@@ -51,7 +51,8 @@ export async function createAttachmentHandler(
       url: key,  // TODO -> need to fix
       fileName,
       mimeType,
-      size
+      size,
+      key: key
     }
   })
 

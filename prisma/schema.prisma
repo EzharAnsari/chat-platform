@@ -115,11 +115,20 @@ model Attachment {
   fileName    String
   mimeType    String
   size        Int
-
+  key         String
   thumbnailUrl String?
 
   createdAt   DateTime @default(now())
 
+  status    AttachmentStatus @default(UPLOADING)
+
   messageId   String?
   message     Message? @relation(fields: [messageId], references: [id])
+}
+
+enum AttachmentStatus {
+  UPLOADING
+  SCANNING
+  READY
+  INFECTED
 }

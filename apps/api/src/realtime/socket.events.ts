@@ -5,6 +5,7 @@ import { checkMessageRateLimit } from "../common/services/rateLimit.service";
 import { isUserOnline } from "./presence.service";
 import { enqueueNotification } from "../infra/queue/notification/notification.queue";
 import { enqueueMediaJob } from "../infra/queue/media/media.queue";
+import { enqueueVirusScan } from "../infra/queue/virus/virus.queue";
 
 
 export function registerSocketEvents(io: Server, socket: Socket) {
@@ -53,8 +54,8 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                         clientMessageId,
                         receipts: {
                             create: members
-                                .filter((m:any) => m.userId !== senderId)
-                                .map((m:any) => ({
+                                .filter((m: any) => m.userId !== senderId)
+                                .map((m: any) => ({
                                     userId: m.userId,
                                     status: "DELIVERED"
                                 }))
@@ -64,7 +65,8 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                                 url: a.url,
                                 mimeType: a.mimeType,
                                 fileName: a.fileName,
-                                size: a.size
+                                size: a.size,
+                                key: a.key
                             }))
                         }
                     },
@@ -101,6 +103,11 @@ export function registerSocketEvents(io: Server, socket: Socket) {
                                 url: attachment.url
                             });
                         }
+
+                        await enqueueVirusScan({
+                            attachmentId: attachment.id,
+                            key: attachment.key
+                        })
                     })
                 )
 

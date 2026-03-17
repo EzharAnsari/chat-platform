@@ -8,6 +8,7 @@
     "dev": "ts-node-dev --respawn -r tsconfig-paths/register --project tsconfig.json src/server.ts",
     "notification-worker": "ts-node -r tsconfig-paths/register --project tsconfig.json src/infra/queue/notification/notification.worker.ts",
     "media-worker": "ts-node -r tsconfig-paths/register --project tsconfig.json src/infra/queue/media/media.worker.ts",
+    "virus-worker": "ts-node -r tsconfig-paths/register --project tsconfig.json src/infra/queue/virus/virus.worker.ts",
     "build": "tsc -b && tsc-alias",
     "start": "node dist/apps/api/src/server.js"
   },
@@ -24,6 +25,7 @@
     "@socket.io/redis-adapter": "^8.3.0",
     "bcrypt": "^6.0.0",
     "bullmq": "^5.70.2",
+    "clamscan": "^2.4.0",
     "dotenv": "^17.3.1",
     "fastify": "^5.7.4",
     "fastify-plugin": "^5.1.0",
@@ -36,6 +38,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/clamscan": "^2.4.1",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.3.3",
     "@types/socket.io": "^3.0.2",

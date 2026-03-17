@@ -54,6 +54,7 @@ export interface Attachment {
   fileName: string
   size?: number
   thumbnailUrl?: string
+  key: string
 }
 
 export interface UploadUrlResponse {

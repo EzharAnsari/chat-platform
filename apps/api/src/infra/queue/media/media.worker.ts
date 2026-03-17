@@ -34,7 +34,7 @@ export const mediaWorker = new Worker(
       })
     );
 
-    const thumbnailUrl = `${process.env.S3_PUBLIC_URL}/${key}`;
+    const thumbnailUrl = `${process.env.S3_PUBLIC_URL}/${process.env.S3_BUCKET}/${key}`;
 
     // update database
     await prisma.attachment.update({

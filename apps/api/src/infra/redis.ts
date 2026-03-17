@@ -4,7 +4,8 @@ const redisHost = process.env.REDIS_HOST
 
 export const redis = new Redis({
   host: redisHost,
-  port: 6379
+  port: 6379,
+  maxRetriesPerRequest: null
 });
 
 // For Socket.io adapter
